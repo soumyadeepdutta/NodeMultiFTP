@@ -1,5 +1,4 @@
 const ftp = require("basic-ftp");
-const { access, constants } = require("fs");
 const { readFile } = require("fs/promises")
 
 const upload_path = __dirname + '/uploads/';
@@ -30,8 +29,8 @@ async function download(filename) {
     try {
         let file = await check_locally_exists(upload_path + filename);
 
-        console.log('searching for ' + upload_path + filename);
-        console.log('is locally present ' + file);
+        // console.log('searching for ' + upload_path + filename);
+        // console.log('is locally present ' + file);
 
         if (!file) {
             await download_from_ftp_server(filename);
@@ -76,7 +75,7 @@ async function upload_to_ftp_server(file) {
 
 async function download_from_ftp_server(filename) {
 
-    console.log('downloading from FTP');
+    // console.log('downloading from FTP');
 
     const client = new ftp.Client()
     client.ftp.verbose = FTP_VERBOSE

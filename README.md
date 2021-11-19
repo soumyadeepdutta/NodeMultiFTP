@@ -20,3 +20,11 @@ const FTP_SECURE = false;
 const FTP_VERBOSE = false;
 const FTP_PATH = "/ftp/upload/path";
 ```
+
+Run with node or nodemon.
+
+```console
+node index.js
+```
+
+Default port is set to 3000. Check and change code accordingly.
