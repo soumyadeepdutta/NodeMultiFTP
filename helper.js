@@ -1,4 +1,5 @@
-const ftp = require("basic-ftp")
+const ftp = require("basic-ftp");
+const { access, constants } = require("fs");
 const { readFile } = require("fs/promises")
 
 const upload_path = __dirname + '/uploads/';
@@ -27,14 +28,32 @@ async function upload(file) {
 
 async function download(filename) {
     try {
-        let file = await readFile(upload_path + filename);
-        if (!file) return null;
+        let file = await check_locally_exists(upload_path + filename);
+
+        console.log('searching for ' + upload_path + filename);
+        console.log('is locally present ' + file);
+
+        if (!file) {
+            await download_from_ftp_server(filename);
+            file = await check_locally_exists(upload_path + filename);
+            if (!file) return null;
+        };
         return upload_path + filename;
     } catch (error) {
         console.log(error);
         return null;
     }
-    return null;
+}
+
+async function check_locally_exists(filename) {
+    try {
+        let file = await readFile(filename);
+        if (file) return true;
+        return false;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
 }
 
 async function upload_to_ftp_server(file) {
@@ -55,6 +74,26 @@ async function upload_to_ftp_server(file) {
     client.close()
 }
 
+async function download_from_ftp_server(filename) {
+
+    console.log('downloading from FTP');
+
+    const client = new ftp.Client()
+    client.ftp.verbose = FTP_VERBOSE
+    try {
+        await client.access({
+            host: FTP_HOST,
+            user: FTP_USER,
+            password: FTP_PASSWORD,
+            secure: FTP_SECURE
+        })
+        await client.downloadTo(upload_path + filename, FTP_PATH + filename);
+    }
+    catch (err) {
+        console.log(err)
+    }
+    client.close()
+}
 // upload_to_ftp_server()
 
 module.exports = { upload, download };
