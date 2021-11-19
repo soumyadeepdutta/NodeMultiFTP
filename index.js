@@ -1,6 +1,6 @@
 const express = require("express");
 const fileUpload = require('express-fileupload');
-const upload = require("./helper");
+const { upload, download } = require("./helper");
 const app = express();
 
 app.use(fileUpload())
@@ -8,6 +8,15 @@ app.use(express.static(__dirname + '/public'))
 
 app.get('/', (req, res) => {
     return res.render('index.html')
+})
+
+app.get('/file', async (req, res) => {
+    if (req.query.filename) {
+        const file = await download(req.query.filename);
+        if (!file) return res.send('no file found with ' + req.query.filename)
+        return res.sendFile(file);
+    }
+    return res.send('need a filename in param')
 })
 
 app.post('/', async (req, res) => {

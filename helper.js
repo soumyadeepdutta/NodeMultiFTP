@@ -1,4 +1,5 @@
 const ftp = require("basic-ftp")
+const { readFile } = require("fs/promises")
 
 const upload_path = __dirname + '/uploads/';
 
@@ -7,6 +8,7 @@ const FTP_HOST = '192.168.0.6';
 const FTP_USER = 'nodeftp';
 const FTP_PASSWORD = 'node@ftp12';
 const FTP_SECURE = false;
+const FTP_VERBOSE = false
 const FTP_PATH = '/ftp/upload/'
 
 async function upload(file) {
@@ -23,9 +25,21 @@ async function upload(file) {
     return true;
 }
 
+async function download(filename) {
+    try {
+        let file = await readFile(upload_path + filename);
+        if (!file) return null;
+        return upload_path + filename;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+    return null;
+}
+
 async function upload_to_ftp_server(file) {
     const client = new ftp.Client()
-    client.ftp.verbose = true
+    client.ftp.verbose = FTP_VERBOSE
     try {
         await client.access({
             host: FTP_HOST,
@@ -43,4 +57,4 @@ async function upload_to_ftp_server(file) {
 
 // upload_to_ftp_server()
 
-module.exports = upload;
+module.exports = { upload, download };
